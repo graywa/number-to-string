@@ -44,7 +44,7 @@ button:hover {
 }
 .modal__content {
     min-width: 250px;
-    max-width: 500px;
+    max-width: 460px;
     background-color: #fff;
     border-radius: 15px;
     padding: 25px;
@@ -54,4 +54,5 @@ button:hover {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+
 }

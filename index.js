@@ -1,9 +1,15 @@
+import {data} from './data.js'
+
 const numberField = document.querySelector('.number-field')
 const btn = document.querySelector('.btn')
 const btnModal = document.querySelector('.btn__modal')
 const modal = document.querySelector('.modal')
 const modalContent = document.querySelector('.modal__content')
-
+const modOnes = data.modOnes
+const ones = data.ones
+const tens = data.tens
+const hundreds = data.hundreds
+const suffixes = data.suffixes
 
 //вешаем на кнопку обработчик преобразования числа в слова
 btn.addEventListener('click', () => {
@@ -19,9 +25,8 @@ btnModal.addEventListener('click', () => {
   numberField.value = ''
 })
 
- //преобразуем числа в слова
+//преобразуем числo в слова
 function convertFullNumToWords(strNum) {
-  const suffixes = ['', 'тысяч', 'миллионов', 'миллиардов', 'триллионов', 'квадрильонов', 'квинтильонов', 'секстильнов']
   const strNumArr = []
   const result = []
   let minus = ''
@@ -29,7 +34,8 @@ function convertFullNumToWords(strNum) {
 
   //обработка ошибок
   if (!Number.isInteger(+strNum) || strNum === '') return 'Пожалуйста, введите целое число'
-  if (+strNum > 9e23 || +strNum < -9e23) return 'Это слишком большое число'
+  if (+strNum > 10e24 - 1 ) return 'Это слишком большое число'
+  if (+strNum < -10e24 + 1) return 'Это слишком маленькое число'
 
   if (strNum[0] === '-') {
     strNum = strNum.slice(1)
@@ -49,44 +55,59 @@ function convertFullNumToWords(strNum) {
   strNumArr.push(strNum)
 
   for (let i = strNumArr.length - 1; i >= 0; i--) {
-    result.push(convertThreeNumToWords(strNumArr[i]) + ' ' + suffixes[i])
+    if (strNumArr[i] === '000') continue
+    result.push(convertThreeNumToWords(strNumArr[i], i) + ' ' +  getSuffix(strNumArr[i], suffixes[i]))
   }
 
   return minus + result.join(' ')
 }
 
+//получаем суффикс числа
+function getSuffix (numStr, suffix) {
+  let index = 1
+
+  if ((numStr % 100 > 4 && numStr % 100 < 20) || numStr % 10 === 0 || numStr % 10 > 4) index = 2
+  if (numStr % 10 === 1) index = 0
+
+  return suffix[index]
+}
+
 //преобразуем группу из трех чисел в слова
-function convertThreeNumToWords(numStr) {
-  const ones = ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять',
-    'десять', 'одиннадцать', 'двенадцать', 'тринадцать', 'четырнадцать', 'пятнадцать',
-    'шестнадцать', 'семнадцать', 'восемнадцать', 'девятнадцать']
-  const tens = ['', '', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто']
-  const hundreds = ['', 'сто', 'двести', 'триста', 'четыреста', 'пятьсот', 'шестьсот', 'семьсот', 'восемьсот', 'девятьсот']
-
+function convertThreeNumToWords(num, i) {
   let words = []
+  const hundred = Math.floor(num/100)
 
-  // если число меньше 20
-  if (numStr < 20) {
-    words.push(ones[+numStr])
-    return words.join(' ')
+  if (hundred) {
+    words.push(hundreds[hundred])
+    num -= hundred * 100
   }
 
-  // если число больше 99
-  if (numStr.length === 3) {
-    words.push(hundreds[numStr[0]])
-    if (numStr[1] + numStr[2] < 20) {
-      words.push(ones[+(numStr[1] + numStr[2])])
-      return words.join(' ')
-    }
-    words.push(tens[numStr[1]])
-    words.push(ones[numStr[2]])
-    return words.join(' ')
+  if (num > 19) {
+    const ten = Math.floor(num/10)
+    words.push(tens[ten])
+    num -= ten * 10
   }
 
-  // если число больше 19 и меньше 100
-  words.push(tens[numStr[0]])
-  words.push(ones[numStr[1]])
+  if (num) {
+    words.push((i === 1) && (+num === 1 || +num === 2) ? modOnes[num] : ones[num])
+  }
+
   return words.join(' ')
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
